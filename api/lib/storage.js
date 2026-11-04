@@ -1,6 +1,6 @@
 /**
  * Storage Adapter for Pantry with local memory / file fallback.
- * Allows swapping backend (Pantry, Upstash, KV) by modifying this single file.
+ * Includes automatic retry with exponential backoff for Pantry's rate limits (429).
  */
 
 import fs from 'node:fs';
@@ -17,11 +17,34 @@ try {
   // ignore
 }
 
+async function fetchWithRetry(url, options, maxRetries = 3) {
+  let delay = 600;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      if (res.status === 429 && attempt < maxRetries) {
+        console.warn(`Pantry 429 rate limit hit, backing off ${delay}ms (attempt ${attempt + 1}/${maxRetries})...`);
+        await new Promise(r => setTimeout(r, delay));
+        delay *= 1.8;
+        continue;
+      }
+      return res;
+    } catch (err) {
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, delay));
+        delay *= 1.8;
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+
 export async function getBasket(basketName) {
   if (usePantry) {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${encodeURIComponent(basketName)}`;
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url, { method: 'GET' });
       if (res.status === 404) return null;
       if (!res.ok) {
         throw new Error(`Pantry GET failed (${res.status}): ${await res.text()}`);
@@ -51,16 +74,16 @@ export async function putBasket(basketName, data) {
   if (usePantry) {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${encodeURIComponent(basketName)}`;
     try {
-      // Try POST first (which creates or updates)
-      let res = await fetch(url, {
+      // POST directly sets or updates basket keys in Pantry
+      let res = await fetchWithRetry(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
       
-      // If POST returns an error or basket exists, try PUT to replace contents
-      if (!res.ok) {
-        res = await fetch(url, {
+      // If POST is not OK and not 429, try PUT
+      if (!res.ok && res.status !== 429) {
+        res = await fetchWithRetry(url, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
@@ -92,7 +115,7 @@ export async function deleteBasket(basketName) {
   if (usePantry) {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${encodeURIComponent(basketName)}`;
     try {
-      const res = await fetch(url, { method: 'DELETE' });
+      const res = await fetchWithRetry(url, { method: 'DELETE' });
       if (res.status === 404) return true;
       if (!res.ok) {
         throw new Error(`Pantry DELETE failed (${res.status}): ${await res.text()}`);
