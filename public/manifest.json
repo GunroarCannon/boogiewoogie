@@ -1,0 +1,16 @@
+{
+  "name": "Lined Paper Todo",
+  "short_name": "LinedPaper",
+  "description": "Collaborative lined paper todo list with spring animations, voice agent, and readable secret keys",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdfbf7",
+  "theme_color": "#fdfbf7",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
