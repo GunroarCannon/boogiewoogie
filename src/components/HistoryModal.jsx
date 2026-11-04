@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
+import { XIcon, RefreshIcon } from './Icons.jsx';
 
 export function HistoryModal({
   isOpen,
@@ -70,7 +71,7 @@ export function HistoryModal({
       <div class="modal-card" onClick={e => e.stopPropagation()}>
         <div class="modal-header">
           <h2 class="modal-title">Version History</h2>
-          <button class="icon-btn" onClick={onClose}>✕</button>
+          <button class="icon-btn" onClick={onClose}><XIcon size={18} /></button>
         </div>
 
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem' }}>

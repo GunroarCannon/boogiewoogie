@@ -9,6 +9,7 @@ import { AgentDrawer } from './components/AgentDrawer.jsx';
 import { ShareModal } from './components/ShareModal.jsx';
 import { HistoryModal } from './components/HistoryModal.jsx';
 import { HomeScreen } from './components/HomeScreen.jsx';
+import { SparklesIcon, MicIcon } from './components/Icons.jsx';
 import { initSoundPreference, setSoundEnabled, isSoundEnabled } from './lib/sound.js';
 
 export function App() {
@@ -215,8 +216,9 @@ export function App() {
             <button
               class="action-pill-btn"
               onClick={() => setIsAgentOpen(true)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             >
-              ✨ Ask Assistant (Ctrl+K)
+              <SparklesIcon size={18} /> Ask Assistant (Ctrl+K)
             </button>
 
             <button
@@ -224,7 +226,7 @@ export function App() {
               onClick={() => setIsAgentOpen(true)}
               title="Voice & Chat Assistant"
             >
-              🎤
+              <MicIcon size={20} />
             </button>
           </div>
 

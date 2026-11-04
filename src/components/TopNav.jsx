@@ -1,4 +1,18 @@
 import { h } from 'preact';
+import {
+  HomeIcon,
+  NotebookIcon,
+  ScriptIcon,
+  ChartIcon,
+  EyeIcon,
+  SunIcon,
+  MoonIcon,
+  VolumeIcon,
+  VolumeOffIcon,
+  LinkIcon,
+  ClockIcon,
+  PlusIcon
+} from './Icons.jsx';
 
 export function TopNav({
   title,
@@ -25,9 +39,9 @@ export function TopNav({
           class="icon-btn"
           title="My Lists"
           onClick={onOpenHome}
-          style={{ fontSize: '1.2rem', padding: '6px' }}
+          style={{ padding: '6px' }}
         >
-          📁
+          <HomeIcon size={20} />
         </button>
 
         <div class="sync-badge" title={`Status: ${syncStatus}`}>
@@ -44,7 +58,7 @@ export function TopNav({
 
         {isViewOnly && (
           <span class="view-only-ribbon">
-            👁️ Viewing Only
+            <EyeIcon size={14} /> Viewing Only
           </span>
         )}
       </div>
@@ -53,20 +67,23 @@ export function TopNav({
         <button
           class={`nav-tab-btn ${activeView === 'paper' ? 'active' : ''}`}
           onClick={() => onViewChange('paper')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          📝 Paper
+          <NotebookIcon size={16} /> Paper
         </button>
         <button
           class={`nav-tab-btn ${activeView === 'raw' ? 'active' : ''}`}
           onClick={() => onViewChange('raw')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          📄 Raw
+          <ScriptIcon size={16} /> Raw
         </button>
         <button
           class={`nav-tab-btn ${activeView === 'graph' ? 'active' : ''}`}
           onClick={() => onViewChange('graph')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          📊 Graph
+          <ChartIcon size={16} /> Graph
         </button>
       </nav>
 
@@ -76,7 +93,7 @@ export function TopNav({
           title={soundEnabled ? 'Mute sound effects' : 'Unmute sound effects'}
           onClick={onToggleSound}
         >
-          {soundEnabled ? '🔔' : '🔕'}
+          {soundEnabled ? <VolumeIcon size={18} /> : <VolumeOffIcon size={18} />}
         </button>
 
         <button
@@ -84,7 +101,7 @@ export function TopNav({
           title={darkMode ? 'Switch to Day Paper' : 'Switch to Night Paper'}
           onClick={onToggleDarkMode}
         >
-          {darkMode ? '☀️' : '🌙'}
+          {darkMode ? <SunIcon size={18} /> : <MoonIcon size={18} />}
         </button>
 
         <button
@@ -92,7 +109,7 @@ export function TopNav({
           title="Share list or view keys"
           onClick={onOpenShare}
         >
-          🔗
+          <LinkIcon size={18} />
         </button>
 
         {role === 'edit' && (
@@ -101,7 +118,7 @@ export function TopNav({
             title="Version History & Restore"
             onClick={onOpenHistory}
           >
-            ⏳
+            <ClockIcon size={18} />
           </button>
         )}
 
@@ -109,9 +126,8 @@ export function TopNav({
           class="icon-btn"
           title="Create New List"
           onClick={onNewList}
-          style={{ fontWeight: 'bold' }}
         >
-          ➕
+          <PlusIcon size={18} />
         </button>
       </div>
     </header>

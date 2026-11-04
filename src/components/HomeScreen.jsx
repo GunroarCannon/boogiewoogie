@@ -1,5 +1,11 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
+import {
+  CrackedIcon,
+  PlusIcon,
+  ArrowRightIcon,
+  XIcon
+} from './Icons.jsx';
 
 export function HomeScreen({
   myLists,
@@ -56,9 +62,13 @@ export function HomeScreen({
           fontSize: '3.4rem',
           lineHeight: 1.1,
           marginBottom: '8px',
-          letterSpacing: '-1px'
+          letterSpacing: '-1px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px'
         }}>
-          📝 Lined Paper
+          <CrackedIcon size={44} /> Lined Paper
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
           Minimalist, spring-animated collaborative todo lists on ruled stationery.
@@ -90,18 +100,21 @@ export function HomeScreen({
                   backgroundColor: 'var(--accent-blue)',
                   color: 'white',
                   fontSize: '1rem',
-                  padding: '10px 24px'
+                  padding: '10px 24px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}
                 onClick={() => setShowCreate(true)}
               >
-                ✨ Create New List
+                <PlusIcon size={18} /> Create New List
               </button>
             </div>
           ) : (
             <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ fontFamily: 'var(--title-font)', fontSize: '1.8rem' }}>Create New List</h3>
-                <button type="button" class="icon-btn" onClick={() => setShowCreate(false)}>✕</button>
+                <button type="button" class="icon-btn" onClick={() => setShowCreate(false)}><XIcon size={18} /></button>
               </div>
 
               <div>
@@ -247,16 +260,16 @@ export function HomeScreen({
                     <button
                       class="action-pill-btn"
                       onClick={() => onSelectList(l.key)}
-                      style={{ fontSize: '0.85rem' }}
+                      style={{ fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
-                      Open →
+                      Open <ArrowRightIcon size={14} />
                     </button>
                     <button
                       class="icon-btn danger"
                       title="Forget this list from this device"
                       onClick={() => onForgetList(l.key)}
                     >
-                      ✕
+                      <XIcon size={15} />
                     </button>
                   </div>
                 </div>

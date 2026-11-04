@@ -8,18 +8,17 @@ import path from 'node:path';
 
 const PANTRY_ID = process.env.PANTRY_ID;
 const LOCAL_STORAGE_DIR = path.resolve(process.cwd(), '.data', 'baskets');
+const usePantry = PANTRY_ID && process.env.NODE_ENV !== 'test' && !process.env.VITEST;
 
 // Ensure local fallback directory exists if needed
-if (!PANTRY_ID) {
-  try {
-    fs.mkdirSync(LOCAL_STORAGE_DIR, { recursive: true });
-  } catch (e) {
-    // ignore
-  }
+try {
+  fs.mkdirSync(LOCAL_STORAGE_DIR, { recursive: true });
+} catch (e) {
+  // ignore
 }
 
 export async function getBasket(basketName) {
-  if (PANTRY_ID) {
+  if (usePantry) {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${encodeURIComponent(basketName)}`;
     try {
       const res = await fetch(url);
@@ -49,7 +48,7 @@ export async function getBasket(basketName) {
 }
 
 export async function putBasket(basketName, data) {
-  if (PANTRY_ID) {
+  if (usePantry) {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${encodeURIComponent(basketName)}`;
     try {
       // Try POST first (which creates or updates)
@@ -90,7 +89,7 @@ export async function putBasket(basketName, data) {
 }
 
 export async function deleteBasket(basketName) {
-  if (PANTRY_ID) {
+  if (usePantry) {
     const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${encodeURIComponent(basketName)}`;
     try {
       const res = await fetch(url, { method: 'DELETE' });

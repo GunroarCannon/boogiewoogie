@@ -1,6 +1,14 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { playPop, playScratch } from '../lib/sound.js';
+import {
+  ChartIcon,
+  SitemapIcon,
+  StarIcon,
+  NotebookIcon,
+  CircleCheckIcon,
+  CircleIcon
+} from './Icons.jsx';
 
 export function GraphView({ list, role, onApplyOps }) {
   const [subTab, setSubTab] = useState('progress'); // 'progress' | 'overtime' | 'mindmap'
@@ -28,20 +36,23 @@ export function GraphView({ list, role, onApplyOps }) {
         <button
           class={`nav-tab-btn ${subTab === 'progress' ? 'active' : ''}`}
           onClick={() => setSubTab('progress')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          📊 Progress Rings
+          <ChartIcon size={16} /> Progress Rings
         </button>
         <button
           class={`nav-tab-btn ${subTab === 'overtime' ? 'active' : ''}`}
           onClick={() => setSubTab('overtime')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          📈 Activity & Burndown
+          <ChartIcon size={16} /> Activity & Burndown
         </button>
         <button
           class={`nav-tab-btn ${subTab === 'mindmap' ? 'active' : ''}`}
           onClick={() => setSubTab('mindmap')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          🧠 Radial Mind Map
+          <SitemapIcon size={16} /> Radial Mind Map
         </button>
       </div>
 
@@ -115,8 +126,8 @@ export function GraphView({ list, role, onApplyOps }) {
               {doneCount} of {totalCount} tasks completed.
             </p>
             {overallPct === 100 && totalCount > 0 && (
-              <p style={{ color: 'var(--accent-green)', fontWeight: 'bold', marginTop: '4px' }}>
-                🌟 All tasks completed! Great job!
+              <p style={{ color: 'var(--accent-green)', fontWeight: 'bold', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <StarIcon size={16} /> All tasks completed! Great job!
               </p>
             )}
           </div>
@@ -345,9 +356,12 @@ export function GraphView({ list, role, onApplyOps }) {
             fontFamily: 'var(--title-font)',
             fontSize: '1.8rem',
             boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-            textAlign: 'center'
+            textAlign: 'center',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            📋 {rootTitle}
+            <NotebookIcon size={24} /> {rootTitle}
           </div>
 
           {/* Top Notes */}
@@ -372,7 +386,6 @@ export function GraphView({ list, role, onApplyOps }) {
           }}>
             {categories.map(cat => {
               const catChildren = activeItems.filter(i => i.parentId === cat.id);
-              const catTodos = catChildren.filter(i => i.type === 'todo');
 
               return (
                 <div
@@ -425,7 +438,7 @@ export function GraphView({ list, role, onApplyOps }) {
                             color: child.done ? 'var(--text-strike)' : 'var(--text-primary)'
                           }}
                         >
-                          <span>{child.done ? '✅' : '⚪'}</span>
+                          {child.done ? <CircleCheckIcon size={16} /> : <CircleIcon size={16} />}
                           <span>{child.text}</span>
                         </div>
                       );

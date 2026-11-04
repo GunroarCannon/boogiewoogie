@@ -1,5 +1,15 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
+import {
+  XIcon,
+  DownloadIcon,
+  RefreshIcon,
+  EyeIcon,
+  EyeOffIcon,
+  LinkIcon,
+  CopyIcon,
+  CheckIcon
+} from './Icons.jsx';
 
 export function ShareModal({
   isOpen,
@@ -89,7 +99,7 @@ IMPORTANT: Keep this key safe. Anyone with the edit key can modify or delete you
       <div class="modal-card" onClick={e => e.stopPropagation()}>
         <div class="modal-header">
           <h2 class="modal-title">Share & Access Keys</h2>
-          <button class="icon-btn" onClick={onClose}>✕</button>
+          <button class="icon-btn" onClick={onClose}><XIcon size={18} /></button>
         </div>
 
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem' }}>
@@ -113,8 +123,8 @@ IMPORTANT: Keep this key safe. Anyone with the edit key can modify or delete you
               style={{ fontSize: '0.85rem' }}
               value={shareUrl}
             />
-            <button class="action-pill-btn" onClick={copyShareLink}>
-              {copiedLink ? 'Copied!' : 'Copy Link'}
+            <button class="action-pill-btn" onClick={copyShareLink} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              {copiedLink ? <><CheckIcon size={15} /> Copied!</> : <><LinkIcon size={15} /> Copy Link</>}
             </button>
           </div>
         </div>
@@ -133,9 +143,9 @@ IMPORTANT: Keep this key safe. Anyone with the edit key can modify or delete you
             <button
               class="icon-btn"
               onClick={() => setShowEditKey(!showEditKey)}
-              style={{ fontSize: '0.8rem' }}
+              style={{ fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
             >
-              {showEditKey ? 'Hide' : 'Reveal'}
+              {showEditKey ? <><EyeOffIcon size={14} /> Hide</> : <><EyeIcon size={14} /> Reveal</>}
             </button>
           </div>
           <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
@@ -146,8 +156,8 @@ IMPORTANT: Keep this key safe. Anyone with the edit key can modify or delete you
               style={{ fontFamily: 'var(--mono-font)', fontWeight: 'bold' }}
               value={activeKey}
             />
-            <button class="action-pill-btn" onClick={copyKey}>
-              {copiedKey ? 'Copied!' : 'Copy'}
+            <button class="action-pill-btn" onClick={copyKey} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              {copiedKey ? <><CheckIcon size={15} /> Copied!</> : 'Copy'}
             </button>
           </div>
         </div>
@@ -156,10 +166,10 @@ IMPORTANT: Keep this key safe. Anyone with the edit key can modify or delete you
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
           <button
             class="action-pill-btn"
-            style={{ justifyContent: 'center', border: '1px solid var(--text-muted)' }}
+            style={{ justifyContent: 'center', border: '1px solid var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             onClick={downloadKeysTxt}
           >
-            💾 Download Keys Backup (.txt)
+            <DownloadIcon size={16} /> Download Keys Backup (.txt)
           </button>
 
           {isEditor && (
@@ -167,9 +177,9 @@ IMPORTANT: Keep this key safe. Anyone with the edit key can modify or delete you
               class="action-pill-btn"
               disabled={isRotating}
               onClick={handleRotate}
-              style={{ justifyContent: 'center', color: 'var(--accent-amber)' }}
+              style={{ justifyContent: 'center', color: 'var(--accent-amber)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             >
-              🔄 Rotate Key (Invalidate Old Key)
+              <RefreshIcon size={16} /> Rotate Key (Invalidate Old Key)
             </button>
           )}
         </div>

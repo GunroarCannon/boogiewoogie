@@ -2,6 +2,14 @@ import { h } from 'preact';
 import { useState, useRef } from 'preact/hooks';
 import confetti from 'canvas-confetti';
 import { playPop, playScratch, playChime, playCrumple } from '../lib/sound.js';
+import {
+  BookmarkIcon,
+  PencilIcon,
+  TrashIcon,
+  XIcon,
+  PlusIcon,
+  StarIcon
+} from './Icons.jsx';
 
 export function PaperView({ list, role, onApplyOps }) {
   const isViewOnly = role === 'view';
@@ -212,9 +220,9 @@ export function PaperView({ list, role, onApplyOps }) {
                 class="icon-btn danger"
                 onClick={() => handleDeleteItem(note.id)}
                 title="Delete note"
-                style={{ fontSize: '0.8rem', padding: '2px' }}
+                style={{ padding: '2px' }}
               >
-                ✕
+                <XIcon size={13} />
               </button>
             )}
           </div>
@@ -233,15 +241,15 @@ export function PaperView({ list, role, onApplyOps }) {
                   onKeyDown={e => e.key === 'Enter' && handleAddTopNote()}
                 />
                 <button class="action-pill-btn" onClick={handleAddTopNote}>Add</button>
-                <button class="icon-btn" onClick={() => setShowAddTopNote(false)}>✕</button>
+                <button class="icon-btn" onClick={() => setShowAddTopNote(false)}><XIcon size={14} /></button>
               </div>
             ) : (
               <button
                 class="icon-btn"
                 onClick={() => setShowAddTopNote(true)}
-                style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}
+                style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                📌 + Add sticky note
+                <BookmarkIcon size={14} /> Add sticky note
               </button>
             )}
           </div>
@@ -292,8 +300,8 @@ export function PaperView({ list, role, onApplyOps }) {
                 )}
 
                 {catTodos.length > 0 && (
-                  <span class={`category-progress-pill ${allDone ? 'completed' : ''}`}>
-                    {doneTodos.length}/{catTodos.length} {allDone && '🎉'}
+                  <span class={`category-progress-pill ${allDone ? 'completed' : ''}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    {doneTodos.length}/{catTodos.length} {allDone && <StarIcon size={12} />}
                   </span>
                 )}
               </div>
@@ -305,14 +313,14 @@ export function PaperView({ list, role, onApplyOps }) {
                     title="Edit category name"
                     onClick={() => handleStartEdit(cat)}
                   >
-                    ✏️
+                    <PencilIcon size={15} />
                   </button>
                   <button
                     class="icon-btn danger"
                     title="Delete category"
                     onClick={() => handleDeleteItem(cat.id)}
                   >
-                    🗑️
+                    <TrashIcon size={15} />
                   </button>
                 </div>
               )}
@@ -342,7 +350,7 @@ export function PaperView({ list, role, onApplyOps }) {
                           class="icon-btn danger"
                           onClick={() => handleDeleteItem(child.id)}
                         >
-                          ✕
+                          <XIcon size={13} />
                         </button>
                       )}
                     </div>
@@ -397,15 +405,15 @@ export function PaperView({ list, role, onApplyOps }) {
                 onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
               />
               <button class="action-pill-btn" onClick={handleAddCategory}>Add Category</button>
-              <button class="icon-btn" onClick={() => setShowAddCat(false)}>✕</button>
+              <button class="icon-btn" onClick={() => setShowAddCat(false)}><XIcon size={14} /></button>
             </div>
           ) : (
             <button
               class="action-pill-btn"
               onClick={() => setShowAddCat(true)}
-              style={{ border: '1px dashed var(--text-muted)' }}
+              style={{ border: '1px dashed var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              ➕ Add Category Section
+              <PlusIcon size={15} /> Add Category Section
             </button>
           )}
         </div>
@@ -467,14 +475,14 @@ export function PaperView({ list, role, onApplyOps }) {
               title="Edit task"
               onClick={() => handleStartEdit(todo)}
             >
-              ✏️
+              <PencilIcon size={15} />
             </button>
             <button
               class="icon-btn danger"
               title="Delete task"
               onClick={() => handleDeleteItem(todo.id)}
             >
-              🗑️
+              <TrashIcon size={15} />
             </button>
           </div>
         )}

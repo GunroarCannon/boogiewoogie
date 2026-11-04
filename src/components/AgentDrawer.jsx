@@ -1,6 +1,16 @@
 import { h } from 'preact';
 import { useState, useRef, useEffect } from 'preact/hooks';
 import { playPop, playScratch, playChime } from '../lib/sound.js';
+import {
+  SparklesIcon,
+  UndoIcon,
+  XIcon,
+  MicIcon,
+  StopIcon,
+  CheckIcon,
+  PlusIcon,
+  TrashIcon
+} from './Icons.jsx';
 
 export function AgentDrawer({
   isOpen,
@@ -314,7 +324,7 @@ export function AgentDrawer({
         borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '1.4rem' }}>✨</span>
+          <SparklesIcon size={20} />
           <h3 style={{ fontFamily: 'var(--title-font)', fontSize: '1.6rem' }}>Voice & AI Assistant</h3>
         </div>
 
@@ -337,13 +347,13 @@ export function AgentDrawer({
                 onUndo();
                 setLastApplied(false);
               }}
-              style={{ fontSize: '0.8rem', padding: '4px 10px', backgroundColor: 'rgba(245, 158, 11, 0.2)' }}
+              style={{ fontSize: '0.8rem', padding: '4px 10px', backgroundColor: 'rgba(245, 158, 11, 0.2)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
             >
-              ↩ Undo
+              <UndoIcon size={14} /> Undo
             </button>
           )}
 
-          <button class="icon-btn" onClick={onClose}>✕</button>
+          <button class="icon-btn" onClick={onClose}><XIcon size={18} /></button>
         </div>
       </div>
 
@@ -392,10 +402,10 @@ export function AgentDrawer({
                     <span class="diff-item-add">+ Add: "{act.params.text}" {act.params.category_name ? `under ${act.params.category_name}` : ''}</span>
                   )}
                   {act.tool === 'check_item' && (
-                    <span class="diff-item-add">✓ Check item: "{act.params.item_text || act.params.item_id}"</span>
+                    <span class="diff-item-add"><CheckIcon size={14} /> Check item: "{act.params.item_text || act.params.item_id}"</span>
                   )}
                   {act.tool === 'delete_item' && (
-                    <span class="diff-item-remove">✕ Delete item: "{act.params.item_text || act.params.item_id}"</span>
+                    <span class="diff-item-remove"><TrashIcon size={14} /> Delete item: "{act.params.item_text || act.params.item_id}"</span>
                   )}
                   {act.tool === 'add_category' && (
                     <span class="diff-item-add">+ New Category: "{act.params.name}"</span>
@@ -453,7 +463,7 @@ export function AgentDrawer({
           onClick={isRecording ? stopRecording : startRecording}
           title={isRecording ? 'Stop listening' : 'Start voice input'}
         >
-          {isRecording ? '⏹' : '🎤'}
+          {isRecording ? <StopIcon size={18} /> : <MicIcon size={18} />}
         </button>
 
         {!isRecording && (

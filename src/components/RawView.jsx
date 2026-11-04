@@ -1,6 +1,13 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { serializeTodoList, parseTodoList } from '../lib/parser.js';
+import {
+  ClipboardIcon,
+  DownloadIcon,
+  UploadIcon,
+  CheckIcon,
+  XIcon
+} from './Icons.jsx';
 
 export function RawView({ list, role, onApplyOps }) {
   const isViewOnly = role === 'view';
@@ -121,18 +128,18 @@ export function RawView({ list, role, onApplyOps }) {
         marginBottom: '12px'
       }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button class="action-pill-btn" onClick={handleCopy}>
-            {copied ? '✅ Copied!' : '📋 Copy Text'}
+          <button class="action-pill-btn" onClick={handleCopy} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            {copied ? <><CheckIcon size={16} /> Copied!</> : <><ClipboardIcon size={16} /> Copy Text</>}
           </button>
-          <button class="action-pill-btn" onClick={handleDownloadTxt}>
-            📥 Download .txt
+          <button class="action-pill-btn" onClick={handleDownloadTxt} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <DownloadIcon size={16} /> Download .txt
           </button>
-          <button class="action-pill-btn" onClick={handleDownloadJson}>
-            💾 Full JSON Backup
+          <button class="action-pill-btn" onClick={handleDownloadJson} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <DownloadIcon size={16} /> JSON Backup
           </button>
           {!isViewOnly && (
-            <button class="action-pill-btn" onClick={() => setShowImportModal(true)}>
-              📤 Import
+            <button class="action-pill-btn" onClick={() => setShowImportModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <UploadIcon size={16} /> Import
             </button>
           )}
         </div>
@@ -140,10 +147,10 @@ export function RawView({ list, role, onApplyOps }) {
         {!isViewOnly && isDirty && (
           <button
             class="action-pill-btn"
-            style={{ backgroundColor: 'var(--accent-blue)', color: 'white' }}
+            style={{ backgroundColor: 'var(--accent-blue)', color: 'white', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             onClick={handleSaveRaw}
           >
-            💾 Apply & Save Changes
+            <CheckIcon size={16} /> Apply & Save Changes
           </button>
         )}
       </div>
@@ -216,7 +223,7 @@ export function RawView({ list, role, onApplyOps }) {
           <div class="modal-card" onClick={e => e.stopPropagation()}>
             <div class="modal-header">
               <h2 class="modal-title">Import Todo Text</h2>
-              <button class="icon-btn" onClick={() => setShowImportModal(false)}>✕</button>
+              <button class="icon-btn" onClick={() => setShowImportModal(false)}><XIcon size={18} /></button>
             </div>
 
             <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)' }}>
