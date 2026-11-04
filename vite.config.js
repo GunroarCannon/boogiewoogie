@@ -3,6 +3,13 @@ import preact from '@preact/preset-vite';
 import path from 'node:path';
 import url from 'node:url';
 
+// Automatically load .env file in Node 20+
+try {
+  if (process.loadEnvFile) process.loadEnvFile();
+} catch (e) {
+  // .env may not exist in some environments
+}
+
 // Vite dev middleware to execute /api/* handlers locally without Vercel CLI
 function apiDevServerPlugin() {
   return {
