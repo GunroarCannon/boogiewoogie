@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import {
-  CrackedIcon,
+  ListCheckIcon,
   PlusIcon,
   ArrowRightIcon,
   XIcon
@@ -57,21 +57,12 @@ export function HomeScreen({
     }}>
       {/* Title / Hero */}
       <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-        <h1 style={{
-          fontFamily: 'var(--title-font)',
-          fontSize: '3.4rem',
-          lineHeight: 1.1,
-          marginBottom: '8px',
-          letterSpacing: '-1px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px'
-        }}>
-          <CrackedIcon size={44} /> Lined Paper
+        <h1 class="brand-title">
+          <ListCheckIcon size={46} style={{ color: 'var(--accent-blue)', verticalAlign: 'middle', marginRight: '6px' }} />
+          Boogiewoogie
         </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
-          Minimalist, spring-animated collaborative todo lists on ruled stationery.
+        <p class="brand-tagline">
+          simple todo app
         </p>
       </div>
 

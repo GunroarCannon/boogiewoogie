@@ -5,6 +5,7 @@
  */
 
 import { applyOpsToList } from '../../api/lib/ops.js';
+import { serializeTodoList } from './parser.js';
 
 const STORAGE_KEY_LISTS = 'lined_paper_my_lists';
 const STORAGE_KEY_ACTIVE = 'lined_paper_active_key';
@@ -187,6 +188,44 @@ export class ClientSync {
           this.notify();
           return;
         }
+
+        if (res.status === 404) {
+          // If the list exists locally in memory, self-heal by creating it on cloud store
+          if (this.list && this.list.items && this.list.items.length > 0) {
+            console.log('List missing on server (404), self-healing to cloud store...');
+            try {
+              const createRes = await fetch('/api/list', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  title: this.list.title || 'Untitled Todo List',
+                  editKey: this.key,
+                  text: serializeTodoList(this.list)
+                })
+              });
+              if (createRes.ok) {
+                const created = await createRes.json();
+                this.list = created;
+                this.queue = [];
+                this.saveOfflineQueue();
+                this.syncStatus = 'synced';
+                this.lastSuccessfulSync = Date.now();
+                this.notify();
+                return;
+              }
+            } catch (healErr) {
+              console.warn('Auto-heal failed:', healErr);
+            }
+          }
+
+          // Clear orphaned queue to stop infinite retry loop
+          this.queue = [];
+          this.saveOfflineQueue();
+          this.syncStatus = 'error';
+          this.notify();
+          return;
+        }
+
         throw new Error('Sync failed with status ' + res.status);
       }
 
@@ -227,6 +266,27 @@ export class ClientSync {
               this.syncStatus = 'synced';
               this.lastSuccessfulSync = Date.now();
               this.notify();
+            }
+          } else if (res.status === 404) {
+            // If server returned 404 during poll and we have local list, attempt auto-heal
+            if (this.list && this.list.items && this.list.items.length > 0 && this.role === 'edit') {
+              try {
+                const createRes = await fetch('/api/list', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: this.list.title || 'Untitled Todo List',
+                    editKey: this.key,
+                    text: serializeTodoList(this.list)
+                  })
+                });
+                if (createRes.ok) {
+                  const created = await createRes.json();
+                  this.list = created;
+                  this.syncStatus = 'synced';
+                  this.notify();
+                }
+              } catch (healErr) {}
             }
           }
         } catch (e) {

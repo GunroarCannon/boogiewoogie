@@ -44,6 +44,24 @@ export function TopNav({
           <HomeIcon size={20} />
         </button>
 
+        <span
+          onClick={onOpenHome}
+          style={{
+            fontFamily: 'var(--comic-font)',
+            fontSize: '1.45rem',
+            letterSpacing: '1.5px',
+            color: 'var(--text-primary)',
+            cursor: 'pointer',
+            marginLeft: '2px',
+            marginRight: '4px',
+            lineHeight: 1,
+            userSelect: 'none'
+          }}
+          title="Boogiewoogie - simple todo app"
+        >
+          Boogiewoogie
+        </span>
+
         <div class="sync-badge" title={`Status: ${syncStatus}`}>
           <svg
             class={`sync-paperclip ${syncStatus === 'saving' ? 'pulsing' : ''}`}

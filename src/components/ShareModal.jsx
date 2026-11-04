@@ -51,8 +51,9 @@ export function ShareModal({
   };
 
   const downloadKeysTxt = () => {
-    const content = `LINED PAPER TODO - ACCESS KEYS
+    const content = `BOOGIEWOOGIE - ACCESS KEYS
 List: ${listTitle}
+Tagline: simple todo app
 Saved: ${new Date().toLocaleString()}
 
 Current Key: ${activeKey}

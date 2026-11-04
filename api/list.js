@@ -24,7 +24,10 @@ export default async function handler(req, res) {
   // 1. CREATE LIST (POST)
   if (req.method === 'POST') {
     try {
-      const body = req.body || {};
+      let body = req.body || {};
+      if (typeof body === 'string') {
+        try { body = JSON.parse(body); } catch (e) {}
+      }
       const title = (body.title || 'Untitled Todo List').trim();
       let editKey = (body.editKey || '').trim();
       let viewKey = (body.viewKey || '').trim();
@@ -86,7 +89,17 @@ export default async function handler(req, res) {
   }
 
   // Get key from header or query param
-  const rawKey = req.headers['x-list-key'] || req.query?.key;
+  let rawKey = req.headers['x-list-key'];
+  if (!rawKey) {
+    if (req.query && req.query.key) {
+      rawKey = req.query.key;
+    } else if (req.url && req.url.includes('?')) {
+      try {
+        const u = new URL(req.url, 'http://localhost');
+        rawKey = u.searchParams.get('key');
+      } catch (e) {}
+    }
+  }
 
   if (!rawKey) {
     return res.status(401).json({ error: 'Missing list key header (x-list-key)' });
@@ -139,7 +152,11 @@ export default async function handler(req, res) {
     }
 
     try {
-      const ops = req.body?.ops || [];
+      let body = req.body || {};
+      if (typeof body === 'string') {
+        try { body = JSON.parse(body); } catch (e) {}
+      }
+      const ops = body.ops || [];
       const currentData = await getBasket(basketName);
       if (!currentData) {
         return res.status(404).json({ error: 'List basket not found.' });
@@ -175,12 +192,16 @@ export default async function handler(req, res) {
     }
 
     try {
+      let body = req.body || {};
+      if (typeof body === 'string') {
+        try { body = JSON.parse(body); } catch (e) {}
+      }
       const currentData = await getBasket(basketName);
       if (!currentData) {
         return res.status(404).json({ error: 'List not found.' });
       }
 
-      const confirmTitle = (req.body?.confirmTitle || '').trim();
+      const confirmTitle = (body.confirmTitle || '').trim();
       if (confirmTitle !== currentData.title.trim()) {
         return res.status(400).json({ error: `Confirmation title does not match. Please type "${currentData.title}".` });
       }

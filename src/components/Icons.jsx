@@ -1,23 +1,15 @@
 import { h } from 'preact';
 
-export function CrackedIcon({ size = 24, className = '' }) {
+export function ListCheckIcon(props) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 256 256"
-      className={className}
-      style={{ verticalAlign: 'middle', display: 'inline-block' }}
-    >
-      <rect x="8" y="8" width="240" height="240" rx="56" fill="currentColor" fillOpacity="0.1" stroke="currentColor" strokeWidth="12" />
-      <path d="M128 38c-44 0-74 52-74 104 0 44 32 76 74 76s74-32 74-76c0-52-30-104-74-104z" fill="#FFC81E" stroke="currentColor" strokeWidth="10" strokeLinejoin="round" />
-      <path d="M60 128l26-12 14 18 20-22 16 20 18-16 22 14 20-8" fill="none" stroke="currentColor" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="102" cy="160" r="8" fill="currentColor" />
-      <circle cx="156" cy="156" r="8" fill="currentColor" />
-      <path d="M104 190c10 4 38 4 50-2" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
-      <path d="M100 186l-6-8M100 186l-8 4M156 186l6-8M156 186l8 4" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-    </svg>
+    <BaseSvg {...props}>
+      <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />
+      <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />
+      <path d="M3.5 17.5l1.5 1.5l2.5 -2.5" />
+      <path d="M11 6l9 0" />
+      <path d="M11 12l9 0" />
+      <path d="M11 18l9 0" />
+    </BaseSvg>
   );
 }
 
