@@ -1,6 +1,7 @@
 /**
  * Storage Adapter for Pantry with local memory / file fallback.
- * Includes automatic retry with exponential backoff for Pantry's rate limits (429).
+ * Includes client-side request throttling (850ms interval) and exponential backoff retry
+ * to gracefully respect Pantry's free tier rate limit.
  */
 
 import fs from 'node:fs';
@@ -17,22 +18,35 @@ try {
   // ignore
 }
 
+let lastPantryRequestTime = 0;
+const MIN_PANTRY_INTERVAL_MS = 850;
+
+async function throttlePantry() {
+  const now = Date.now();
+  const elapsed = now - lastPantryRequestTime;
+  if (elapsed < MIN_PANTRY_INTERVAL_MS) {
+    await new Promise(r => setTimeout(r, MIN_PANTRY_INTERVAL_MS - elapsed));
+  }
+  lastPantryRequestTime = Date.now();
+}
+
 async function fetchWithRetry(url, options, maxRetries = 3) {
-  let delay = 600;
+  let delay = 1800;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
+      await throttlePantry();
       const res = await fetch(url, options);
       if (res.status === 429 && attempt < maxRetries) {
         console.warn(`Pantry 429 rate limit hit, backing off ${delay}ms (attempt ${attempt + 1}/${maxRetries})...`);
         await new Promise(r => setTimeout(r, delay));
-        delay *= 1.8;
+        delay *= 2;
         continue;
       }
       return res;
     } catch (err) {
       if (attempt < maxRetries) {
         await new Promise(r => setTimeout(r, delay));
-        delay *= 1.8;
+        delay *= 2;
         continue;
       }
       throw err;

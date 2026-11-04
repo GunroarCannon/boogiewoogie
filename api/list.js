@@ -66,8 +66,8 @@ export default async function handler(req, res) {
       // Create pointers for edit & view keys
       await createListPointers(listId, editKey, viewKey);
 
-      // Save initial snapshot
-      await saveSnapshot(listId, listData);
+      // Save initial snapshot in background
+      saveSnapshot(listId, listData).catch(e => console.warn('Initial snapshot error:', e));
 
       return res.status(201).json({
         id: listId,
