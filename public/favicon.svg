@@ -1,9 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="1" y="1" width="22" height="22" rx="5" fill="#fdfbf7" stroke="#2563eb" stroke-width="1.5" />
-  <path d="M4 6l1.5 1.5l2.5 -2.5" stroke="#10b981" stroke-width="2" />
-  <path d="M4 12l1.5 1.5l2.5 -2.5" stroke="#10b981" stroke-width="2" />
-  <path d="M4 18l1.5 1.5l2.5 -2.5" stroke="#10b981" stroke-width="2" />
-  <path d="M11 6l8 0" stroke="#2563eb" stroke-width="2" />
-  <path d="M11 12l8 0" stroke="#2563eb" stroke-width="2" />
-  <path d="M11 18l8 0" stroke="#2563eb" stroke-width="2" />
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 64 64">
+  <!-- wooden desk -->
+  <rect width="64" height="64" rx="14" fill="#b07a4a"/>
+  <!-- paper, slightly tilted -->
+  <g transform="rotate(-5 32 32)">
+    <rect x="12" y="7" width="40" height="50" rx="3" fill="#fdfbf7" stroke="#3b2a1a" stroke-width="1.5"/>
+    <!-- ruled lines -->
+    <g stroke="#93c5fd" stroke-width="1.3" stroke-linecap="round">
+      <path d="M16 20h32"/><path d="M16 29h32"/><path d="M16 38h32"/><path d="M16 47h32"/>
+    </g>
+    <!-- red margin -->
+    <path d="M20 8v48" stroke="#ef4444" stroke-width="1.5"/>
+    <!-- binder holes -->
+    <g fill="#b07a4a"><circle cx="15.5" cy="16" r="1.3"/><circle cx="15.5" cy="32" r="1.3"/><circle cx="15.5" cy="48" r="1.3"/></g>
+    <!-- hand-drawn check + scribbled text -->
+    <path d="M24 16l3 3.5l6 -8" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M37 17q3 -3 5 0t5 -1" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M24 35q4 -3 7 0t7 0t6 -1" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M23 44h22" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
 </svg>
