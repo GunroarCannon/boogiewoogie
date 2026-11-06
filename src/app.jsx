@@ -96,7 +96,9 @@ export function App() {
       const mod = e.ctrlKey || e.metaKey;
       const k = (e.key || '').toLowerCase();
       const t = e.target;
-      const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+      // Only defer to native text undo when the focused field actually has text
+      const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) &&
+        (t.isContentEditable ? (t.textContent || '').length > 0 : (t.value || '').length > 0);
       if (mod && k === 'z' && !typing) {
         e.preventDefault();
         if (e.shiftKey) sync.redo(); else sync.undo();

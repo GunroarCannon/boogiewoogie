@@ -126,8 +126,8 @@ export function applyOpsToList(listData, ops = []) {
         for (const incoming of (op.items || [])) {
           itemsMap.set(incoming.id, {
             ...incoming,
-            deleted: false,
-            updatedAt: incoming.updatedAt || now
+            deleted: !!incoming.deleted,
+            updatedAt: now
           });
         }
         break;

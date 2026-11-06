@@ -406,7 +406,9 @@ export function AgentDrawer({
               padding: '10px 14px',
               maxWidth: '85%',
               fontSize: '0.94rem',
-              lineHeight: 1.4
+              lineHeight: 1.4,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word'
             }}
           >
             {m.content}
@@ -486,12 +488,19 @@ export function AgentDrawer({
             style={{ borderRadius: '6px', backgroundColor: 'rgba(0,0,0,0.05)' }}
           />
         ) : (
-          <input
-            placeholder="Type or click the mic to speak…"
+          <textarea
+            placeholder="Type or paste a list, or click the mic… (Shift+Enter for new line)"
             class="quick-add-input"
+            rows={inputText.includes('\n') ? Math.min(6, inputText.split('\n').length) : 1}
+            style={{ resize: 'none', fontFamily: 'inherit' }}
             value={inputText}
-            onChange={e => setInputText(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && sendMessage()}
+            onInput={e => setInputText(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
           />
         )}
 

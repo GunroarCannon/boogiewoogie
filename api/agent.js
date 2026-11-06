@@ -161,6 +161,14 @@ export default async function handler(req, res) {
     return res.status(200).json(fallbackResponse);
   }
 
+  // Structured "add these in category X:\n list" requests: deterministic parser beats the LLM
+  if (role === 'edit' && /^\s*(?:please\s+)?add\s[^\n]*:\s*\S/i.test(message)) {
+    const local = handleLocalAgent(message, listContext, role, conversation);
+    if (local.actions.some(a => a.tool === 'add_items')) {
+      return res.status(200).json(local);
+    }
+  }
+
   // Call Groq AI with tool calling
   try {
     const systemPrompt = `You are an intelligent, highly perceptive AI assistant for a lined-paper todo list titled "${listContext.title || 'Todo'}".
@@ -370,6 +378,19 @@ function handleLocalAgent(message, listContext, role, conversation = []) {
       return {
         message: `I've prepared to mark "${match.text}" as done.`,
         actions,
+        role
+      };
+    }
+  }
+
+  // "Add these in a new category X:\n a\n b" -> items under category X
+  const catListAdd = message.match(/^\s*(?:please\s+|can\s+you\s+)?(?:add|put|append|include)\s+(?:these|those|the following|this|them)?\s*(?:tasks?|todos?|items?|ideas?)?\s*(?:in|into|under|to)\s+(?:a\s+|the\s+)?(?:new\s+)?(?:categ\w*\s+)?(?:called\s+|named\s+)?["']?([^:\n]+?)["']?\s*:\s*([\s\S]+)$/i);
+  if (catListAdd) {
+    const texts = splitIntoTasks(catListAdd[2]);
+    if (texts.length > 0) {
+      return {
+        message: `Adding ${texts.length} task${texts.length === 1 ? '' : 's'} under "${catListAdd[1].trim()}".`,
+        actions: [{ tool: 'add_items', params: { category_name: catListAdd[1].trim(), texts } }],
         role
       };
     }
