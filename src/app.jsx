@@ -94,7 +94,7 @@ export function App() {
     // 4. Keyboard Shortcuts
     const handleKeyDown = (e) => {
       const mod = e.ctrlKey || e.metaKey;
-      const k = (e.key || '').toLowerCase();
+      const k = (e.code === 'KeyZ' ? 'z' : e.code === 'KeyY' ? 'y' : (e.key || '').toLowerCase());
       const t = e.target;
       // Only defer to native text undo when the focused field actually has text
       const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) &&
@@ -114,11 +114,11 @@ export function App() {
         setIsHistoryOpen(false);
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, true);
 
     return () => {
       unsubscribe();
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown, true);
     };
   }, []);
 

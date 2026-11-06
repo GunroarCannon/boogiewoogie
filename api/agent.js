@@ -162,7 +162,7 @@ export default async function handler(req, res) {
   }
 
   // Structured "add these in category X:\n list" requests: deterministic parser beats the LLM
-  if (role === 'edit' && /^\s*(?:please\s+)?add\s[^\n]*:\s*\S/i.test(message)) {
+  if (role === 'edit' && /^\s*(?:please\s+)?add\b[^\n]*?:\s*\S/i.test(message)) {
     const local = handleLocalAgent(message, listContext, role, conversation);
     if (local.actions.some(a => a.tool === 'add_items')) {
       return res.status(200).json(local);
@@ -308,12 +308,15 @@ function formatContextForPrompt(ctx) {
 
 function splitIntoTasks(raw) {
   let parts = String(raw).split(/\r?\n/);
-  if (parts.filter(p => p.trim()).length <= 1) {
+  if (String(raw).includes('•')) {
+    parts = String(raw).split(/•|\r?\n/);
+  } else if (parts.filter(p => p.trim()).length <= 1) {
     parts = String(raw).split(/[;,]|\s+and\s+(?=[a-z])/i);
   }
   return parts
-    .map(s => s.trim().replace(/^(?:[-*•]|\d+[.)])\s*/, '').replace(/^["'\s]+|["'\s.]+$/g, ''))
-    .filter(s => s.length > 1);
+    .map(s => s.replace(/(^|\.)\s*[^.]*\?[\s\S]*$/, '$1').trim()
+      .replace(/[\s—–_=-]{3,}$/, '').replace(/^(?:[-*•]|\d+[.)])\s*/, '').replace(/^["'\s]+|["'\s.]+$/g, ''))
+    .filter(s => s.length > 1 && !/^[-–—_=\s]+$/.test(s) && !/\?\s*$/.test(s) && !/\?\s+\S/.test(s));
 }
 
 /**
@@ -397,7 +400,7 @@ function handleLocalAgent(message, listContext, role, conversation = []) {
   }
 
   // Multi-item add: "add these: a, b, c" / bullets / newlines
-  const listAdd = message.match(/^\s*(?:please\s+|can\s+you\s+)?(?:add|put|append|include)\s+(?:these|those|the following|this|following)?\s*(?:tasks?|todos?|items?|ideas?)?\s*(?:to (?:the |my )?list)?\s*[:\-]\s*([\s\S]+)$/i);
+  const listAdd = message.match(/^\s*(?:please\s+|can\s+you\s+)?(?:add|put|append|include)\b\s*(?:these|those|the following|this|following)?\s*(?:tasks?|todos?|items?|ideas?)?\s*(?:to (?:the |my )?list)?\s*[:\-]\s*([\s\S]+)$/i);
   if (listAdd) {
     const texts = splitIntoTasks(listAdd[1]);
     if (texts.length > 0) {
