@@ -24,7 +24,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    let newKey = (req.body?.newKey || '').trim();
+    let body = req.body || {};
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch (e) {}
+    }
+    let newKey = (body.newKey || '').trim();
     if (!newKey) {
       newKey = generateReadableKey();
     } else if (newKey.length < 8) {
@@ -39,6 +43,7 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('Error rotating key:', err);
-    return res.status(500).json({ error: err.message });
+    const status = err.message && (err.message.includes('Invalid') || err.message.includes('not found')) ? 404 : 500;
+    return res.status(status).json({ error: err.message });
   }
 }

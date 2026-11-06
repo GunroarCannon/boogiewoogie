@@ -284,6 +284,15 @@ export function UndoIcon(props) {
   );
 }
 
+export function RedoIcon(props) {
+  return (
+    <BaseSvg {...props}>
+      <path d="M15 14l4 -4l-4 -4" />
+      <path d="M19 10h-11a4 4 0 1 0 0 8h1" />
+    </BaseSvg>
+  );
+}
+
 export function RefreshIcon(props) {
   return (
     <BaseSvg {...props}>
@@ -317,6 +326,16 @@ export function StarIcon(props) {
   return (
     <BaseSvg {...props}>
       <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
+    </BaseSvg>
+  );
+}
+
+export function HelpCircleIcon(props) {
+  return (
+    <BaseSvg {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 17v.01" />
+      <path d="M12 13a2 2 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
     </BaseSvg>
   );
 }

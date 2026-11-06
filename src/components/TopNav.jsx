@@ -11,7 +11,10 @@ import {
   VolumeOffIcon,
   LinkIcon,
   ClockIcon,
-  PlusIcon
+  PlusIcon,
+  HelpCircleIcon,
+  UndoIcon,
+  RedoIcon
 } from './Icons.jsx';
 
 export function TopNav({
@@ -28,7 +31,12 @@ export function TopNav({
   onOpenShare,
   onOpenHistory,
   onOpenHome,
-  onNewList
+  onNewList,
+  onOpenTour,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo
 }) {
   const isViewOnly = role === 'view';
 
@@ -83,21 +91,21 @@ export function TopNav({
 
       <nav class="topbar-nav">
         <button
-          class={`nav-tab-btn ${activeView === 'paper' ? 'active' : ''}`}
+          class={`nav-tab-btn paper-nav-btn ${activeView === 'paper' ? 'active' : ''}`}
           onClick={() => onViewChange('paper')}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
           <NotebookIcon size={16} /> Paper
         </button>
         <button
-          class={`nav-tab-btn ${activeView === 'raw' ? 'active' : ''}`}
+          class={`nav-tab-btn raw-nav-btn ${activeView === 'raw' ? 'active' : ''}`}
           onClick={() => onViewChange('raw')}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
           <ScriptIcon size={16} /> Raw
         </button>
         <button
-          class={`nav-tab-btn ${activeView === 'graph' ? 'active' : ''}`}
+          class={`nav-tab-btn graph-nav-btn ${activeView === 'graph' ? 'active' : ''}`}
           onClick={() => onViewChange('graph')}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
@@ -106,6 +114,36 @@ export function TopNav({
       </nav>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {!isViewOnly && (
+          <>
+            <button
+              class="icon-btn"
+              title="Undo (Ctrl+Z)"
+              onClick={onUndo}
+              disabled={!canUndo}
+              style={{ opacity: canUndo ? 1 : 0.35 }}
+            >
+              <UndoIcon size={20} />
+            </button>
+            <button
+              class="icon-btn"
+              title="Redo (Ctrl+Y)"
+              onClick={onRedo}
+              disabled={!canRedo}
+              style={{ opacity: canRedo ? 1 : 0.35 }}
+            >
+              <RedoIcon size={20} />
+            </button>
+          </>
+        )}
+        <button
+          class="icon-btn tour-nav-btn"
+          title="App Walkthrough & Guide"
+          onClick={onOpenTour}
+        >
+          <HelpCircleIcon size={18} />
+        </button>
+
         <button
           class="icon-btn"
           title={soundEnabled ? 'Mute sound effects' : 'Unmute sound effects'}
@@ -123,7 +161,7 @@ export function TopNav({
         </button>
 
         <button
-          class="icon-btn"
+          class="icon-btn share-nav-btn"
           title="Share list or view keys"
           onClick={onOpenShare}
         >

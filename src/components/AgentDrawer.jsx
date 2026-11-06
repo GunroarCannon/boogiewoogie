@@ -4,6 +4,7 @@ import { playPop, playScratch, playChime } from '../lib/sound.js';
 import {
   SparklesIcon,
   UndoIcon,
+  RedoIcon,
   XIcon,
   MicIcon,
   StopIcon,
@@ -18,7 +19,8 @@ export function AgentDrawer({
   list,
   role,
   onApplyOps,
-  onUndo
+  onUndo,
+  onRedo
 }) {
   const isViewOnly = role === 'view';
   const [messages, setMessages] = useState([
@@ -31,7 +33,7 @@ export function AgentDrawer({
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [proposedDiff, setProposedDiff] = useState(null);
-  const [autoApply, setAutoApply] = useState(false);
+  const [autoApply, setAutoApply] = useState(true);
   const [lastApplied, setLastApplied] = useState(false);
 
   const mediaRecorderRef = useRef(null);
@@ -43,7 +45,7 @@ export function AgentDrawer({
   useEffect(() => {
     try {
       const savedAuto = localStorage.getItem('lined_paper_auto_apply');
-      if (savedAuto) setAutoApply(savedAuto === '1');
+      if (savedAuto !== null) setAutoApply(savedAuto === '1');
     } catch (e) {}
   }, []);
 
@@ -230,29 +232,52 @@ export function AgentDrawer({
     const activeItems = (currentList.items || []).filter(i => !i.deleted);
     const categories = activeItems.filter(i => i.type === 'category');
 
+    let orderCursor = activeItems.length;
+    const createdCats = new Map();
+    const itemById = new Map(activeItems.map(i => [i.id, i]));
+    const findCat = (name) => {
+      const lower = String(name).toLowerCase().trim();
+      return categories.find(c => c.text.toLowerCase().trim() === lower) || createdCats.get(lower);
+    };
+    const ensureCat = (name) => {
+      const found = findCat(name);
+      if (found) return found.id;
+      const id = 'cat_' + Math.random().toString(36).substring(2, 9);
+      const item = { id, type: 'category', text: name, order: orderCursor++, createdAt: Date.now() };
+      createdCats.set(String(name).toLowerCase().trim(), item);
+      ops.push({ op: 'add_category', item });
+      return id;
+    };
+
     for (const a of actions) {
-      if (a.tool === 'add_item') {
-        let parentId = null;
-        if (a.params.category_name) {
-          const matchCat = categories.find(c => c.text.toLowerCase() === a.params.category_name.toLowerCase());
-          if (matchCat) {
-            parentId = matchCat.id;
-          } else {
-            // Create new category first
-            const newCatId = 'cat_' + Math.random().toString(36).substring(2, 9);
-            ops.push({
-              op: 'add_category',
-              item: {
-                id: newCatId,
-                type: 'category',
-                text: a.params.category_name,
-                order: activeItems.length,
-                createdAt: Date.now()
-              }
-            });
-            parentId = newCatId;
-          }
+      if (a.tool === 'add_items') {
+        const parentId = a.params.category_name ? ensureCat(a.params.category_name) : null;
+        for (const text of (a.params.texts || [])) {
+          if (!text || !String(text).trim()) continue;
+          ops.push({
+            op: 'add_item',
+            item: {
+              id: 'todo_' + Math.random().toString(36).substring(2, 9),
+              type: 'todo',
+              text: String(text).trim(),
+              done: false,
+              parentId,
+              order: orderCursor++,
+              createdAt: Date.now()
+            }
+          });
         }
+      } else if (a.tool === 'move_item') {
+        if (!itemById.has(a.params.item_id)) continue;
+        ops.push({
+          op: 'move_item',
+          id: a.params.item_id,
+          parentId: ensureCat(a.params.target_category_name),
+          order: orderCursor++,
+          updatedAt: Date.now()
+        });
+      } else if (a.tool === 'add_item') {
+        const parentId = a.params.category_name ? ensureCat(a.params.category_name) : null;
         ops.push({
           op: 'add_item',
           item: {
@@ -261,7 +286,7 @@ export function AgentDrawer({
             text: a.params.text,
             done: false,
             parentId,
-            order: activeItems.length + 1,
+            order: orderCursor++,
             createdAt: Date.now()
           }
         });
@@ -352,6 +377,9 @@ export function AgentDrawer({
               <UndoIcon size={14} /> Undo
             </button>
           )}
+          {onRedo && role === 'edit' && (
+            <button class="icon-btn" title="Redo" onClick={onRedo}><RedoIcon size={16} /></button>
+          )}
 
           <button class="icon-btn" onClick={onClose}><XIcon size={18} /></button>
         </div>
@@ -400,6 +428,15 @@ export function AgentDrawer({
                 <div key={i} style={{ fontSize: '0.9rem' }}>
                   {act.tool === 'add_item' && (
                     <span class="diff-item-add">+ Add: "{act.params.text}" {act.params.category_name ? `under ${act.params.category_name}` : ''}</span>
+                  )}
+                  {act.tool === 'add_items' && (
+                    <span class="diff-item-add">+ Add {(act.params.texts || []).length} tasks{act.params.category_name ? ` under ${act.params.category_name}` : ''}: {(act.params.texts || []).map(t => `"${t}"`).join(', ')}</span>
+                  )}
+                  {act.tool === 'edit_item' && (
+                    <span class="diff-item-add">Rename item to: "{act.params.text}"</span>
+                  )}
+                  {act.tool === 'move_item' && (
+                    <span class="diff-item-add">Move item to {act.params.target_category_name}</span>
                   )}
                   {act.tool === 'check_item' && (
                     <span class="diff-item-add"><CheckIcon size={14} /> Check item: "{act.params.item_text || act.params.item_id}"</span>

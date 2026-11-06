@@ -22,6 +22,7 @@ export class ClientSync {
     this.isPolling = false;
     this.lastSuccessfulSync = Date.now();
     this.historyStack = []; // For client-side undo
+    this.redoStack = []; // For client-side redo
     
     // Load queue from localStorage if any
     this.loadOfflineQueue();
@@ -46,9 +47,31 @@ export class ClientSync {
         role: this.role,
         syncStatus: this.syncStatus,
         key: this.key,
-        queueLength: this.queue.length
+        queueLength: this.queue.length,
+        canUndo: this.historyStack.length > 0,
+        canRedo: this.redoStack.length > 0
       });
     }
+  }
+
+  invalidateKey(keyToInvalidate = null) {
+    const k = keyToInvalidate || this.key;
+    this.stopPolling();
+    this.key = null;
+    this.list = null;
+    this.queue = [];
+    this.saveOfflineQueue();
+    try {
+      localStorage.removeItem(STORAGE_KEY_ACTIVE);
+    } catch (e) {}
+    if (k) {
+      this.forgetList(k);
+    }
+    if (typeof window !== 'undefined' && window.location.hash) {
+      window.location.hash = '';
+    }
+    this.syncStatus = 'synced';
+    this.notify();
   }
 
   setKey(key) {
@@ -72,6 +95,10 @@ export class ClientSync {
       });
 
       if (!res.ok) {
+        if (res.status === 404) {
+          this.invalidateKey(key);
+          throw new Error('List not found (404). This list key is invalid or has expired, and has been cleared.');
+        }
         const errData = await res.json().catch(() => ({}));
         this.syncStatus = 'error';
         this.notify();
@@ -111,17 +138,18 @@ export class ClientSync {
   /**
    * Apply operations optimistically and queue for server sync
    */
-  async applyOps(ops) {
+  async applyOps(ops, { record = true } = {}) {
     if (!ops || ops.length === 0) return;
     if (this.role !== 'edit') {
       console.warn('Cannot apply ops in view-only mode');
       return;
     }
 
-    // Push previous state for undo
-    if (this.list) {
+    // Push previous state for undo (a fresh edit invalidates the redo history)
+    if (record && this.list) {
       this.historyStack.push(JSON.parse(JSON.stringify(this.list)));
       if (this.historyStack.length > 50) this.historyStack.shift();
+      this.redoStack = [];
     }
 
     // 1. Optimistic local update
@@ -137,20 +165,33 @@ export class ClientSync {
     await this.flushQueue();
   }
 
-  undo() {
-    if (this.historyStack.length === 0) return false;
-    const previous = this.historyStack.pop();
-    if (!previous) return false;
+  _restoreSnapshot(snapshot) {
+    return this.applyOps(
+      [
+        {
+          op: 'replace_all',
+          title: snapshot.title,
+          items: snapshot.items,
+          updatedAt: Date.now()
+        }
+      ],
+      { record: false }
+    );
+  }
 
-    // Send replace_all op
-    this.applyOps([
-      {
-        op: 'replace_all',
-        title: previous.title,
-        items: previous.items,
-        updatedAt: Date.now()
-      }
-    ]);
+  undo() {
+    if (this.historyStack.length === 0 || !this.list) return false;
+    const previous = this.historyStack.pop();
+    this.redoStack.push(JSON.parse(JSON.stringify(this.list)));
+    this._restoreSnapshot(previous);
+    return true;
+  }
+
+  redo() {
+    if (this.redoStack.length === 0 || !this.list) return false;
+    const next = this.redoStack.pop();
+    this.historyStack.push(JSON.parse(JSON.stringify(this.list)));
+    this._restoreSnapshot(next);
     return true;
   }
 
@@ -218,11 +259,9 @@ export class ClientSync {
             }
           }
 
-          // Clear orphaned queue to stop infinite retry loop
-          this.queue = [];
-          this.saveOfflineQueue();
-          this.syncStatus = 'error';
-          this.notify();
+          // Clear orphaned queue and invalidate dead key to stop infinite retry loop
+          console.warn(`Key ${this.key} returned 404 during flush. Invalidating dead key...`);
+          this.invalidateKey(this.key);
           return;
         }
 
@@ -269,6 +308,7 @@ export class ClientSync {
             }
           } else if (res.status === 404) {
             // If server returned 404 during poll and we have local list, attempt auto-heal
+            let healed = false;
             if (this.list && this.list.items && this.list.items.length > 0 && this.role === 'edit') {
               try {
                 const createRes = await fetch('/api/list', {
@@ -285,9 +325,20 @@ export class ClientSync {
                   this.list = created;
                   this.syncStatus = 'synced';
                   this.notify();
+                  healed = true;
                 }
               } catch (healErr) {}
             }
+            if (!healed) {
+              console.warn(`Key ${this.key} returned 404 during poll. Invalidating dead key...`);
+              this.invalidateKey(this.key);
+              return;
+            }
+          } else if (res.status === 429) {
+            console.warn('Rate limited (429) during poll, backing off for 30s...');
+            this.stopPolling();
+            this.pollTimer = setTimeout(poll, 30000);
+            return;
           }
         } catch (e) {
           // Poll failed silently, keep existing state

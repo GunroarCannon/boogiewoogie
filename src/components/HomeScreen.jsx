@@ -4,7 +4,8 @@ import {
   ListCheckIcon,
   PlusIcon,
   ArrowRightIcon,
-  XIcon
+  XIcon,
+  HelpCircleIcon
 } from './Icons.jsx';
 
 export function HomeScreen({
@@ -12,7 +13,8 @@ export function HomeScreen({
   onSelectList,
   onForgetList,
   onCreateList,
-  onOpenByKey
+  onOpenByKey,
+  onOpenTour
 }) {
   const [inputKey, setInputKey] = useState('');
   const [keyError, setKeyError] = useState('');
@@ -64,6 +66,23 @@ export function HomeScreen({
         <p class="brand-tagline">
           simple todo app
         </p>
+        <div style={{ marginTop: '12px' }}>
+          <button
+            class="action-pill-btn"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.88rem',
+              color: 'var(--accent-blue)',
+              borderColor: 'rgba(59, 130, 246, 0.3)',
+              backgroundColor: 'rgba(59, 130, 246, 0.05)'
+            }}
+            onClick={onOpenTour}
+          >
+            <HelpCircleIcon size={16} /> Take Quick App Walkthrough
+          </button>
+        </div>
       </div>
 
       {/* Action Cards */}

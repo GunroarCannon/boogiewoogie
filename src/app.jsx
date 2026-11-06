@@ -9,6 +9,7 @@ import { AgentDrawer } from './components/AgentDrawer.jsx';
 import { ShareModal } from './components/ShareModal.jsx';
 import { HistoryModal } from './components/HistoryModal.jsx';
 import { HomeScreen } from './components/HomeScreen.jsx';
+import { Walkthrough } from './components/Walkthrough.jsx';
 import { SparklesIcon, MicIcon } from './components/Icons.jsx';
 import { initSoundPreference, setSoundEnabled, isSoundEnabled } from './lib/sound.js';
 
@@ -22,10 +23,12 @@ export function App() {
   const [list, setList] = useState(null);
   const [role, setRole] = useState('edit');
   const [syncStatus, setSyncStatus] = useState('synced');
+  const [history, setHistory] = useState({ canUndo: false, canRedo: false });
   const [activeKey, setActiveKey] = useState(null);
   const [activeView, setActiveView] = useState('paper'); // 'paper' | 'raw' | 'graph'
   const [myLists, setMyLists] = useState([]);
   const [isHomeOpen, setIsHomeOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
 
   // Modals
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -51,6 +54,7 @@ export function App() {
       setRole(state.role);
       setSyncStatus(state.syncStatus);
       setActiveKey(state.key);
+      setHistory({ canUndo: !!state.canUndo, canRedo: !!state.canRedo });
       setMyLists(sync.getMyLists());
     });
 
@@ -80,11 +84,25 @@ export function App() {
 
     setMyLists(sync.getMyLists());
 
+    // Check if walkthrough should be shown
+    try {
+      if (localStorage.getItem('boogiewoogie_tour_seen') !== '1') {
+        setTimeout(() => setIsTourOpen(true), 800);
+      }
+    } catch (e) {}
+
     // 4. Keyboard Shortcuts
     const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      const mod = e.ctrlKey || e.metaKey;
+      const k = (e.key || '').toLowerCase();
+      const t = e.target;
+      const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+      if (mod && k === 'z' && !typing) {
         e.preventDefault();
-        sync.undo();
+        if (e.shiftKey) sync.redo(); else sync.undo();
+      } else if (mod && k === 'y' && !typing) {
+        e.preventDefault();
+        sync.redo();
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         setIsAgentOpen(prev => !prev);
@@ -168,6 +186,7 @@ export function App() {
           onForgetList={handleForgetList}
           onCreateList={handleCreateNewList}
           onOpenByKey={(key) => handleOpenByKey(key)}
+          onOpenTour={() => setIsTourOpen(true)}
         />
       ) : (
         <>
@@ -185,6 +204,11 @@ export function App() {
             onOpenHistory={() => setIsHistoryOpen(true)}
             onOpenHome={() => setIsHomeOpen(true)}
             onNewList={() => setIsHomeOpen(true)}
+            onOpenTour={() => setIsTourOpen(true)}
+            canUndo={history.canUndo}
+            canRedo={history.canRedo}
+            onUndo={() => sync.undo()}
+            onRedo={() => sync.redo()}
           />
 
           <main style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
@@ -214,7 +238,7 @@ export function App() {
           {/* Floating Action Bar */}
           <div class="floating-bottom-bar">
             <button
-              class="action-pill-btn"
+              class="action-pill-btn floating-agent-btn"
               onClick={() => setIsAgentOpen(true)}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             >
@@ -222,7 +246,7 @@ export function App() {
             </button>
 
             <button
-              class="mic-float-btn"
+              class="mic-float-btn floating-agent-btn"
               onClick={() => setIsAgentOpen(true)}
               title="Voice & Chat Assistant"
             >
@@ -238,6 +262,7 @@ export function App() {
             role={role}
             onApplyOps={handleApplyOps}
             onUndo={() => sync.undo()}
+            onRedo={() => sync.redo()}
           />
 
           {/* Share Modal */}
@@ -265,6 +290,12 @@ export function App() {
           />
         </>
       )}
+
+      {/* Interactive Walkthrough Tour */}
+      <Walkthrough
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+      />
     </div>
   );
 }

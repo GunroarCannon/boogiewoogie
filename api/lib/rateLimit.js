@@ -4,8 +4,8 @@
 
 const failedAttempts = new Map(); // ip -> { count, resetAt }
 
-const MAX_FAILED_ATTEMPTS = 10;
-const LOCKOUT_MS = 60 * 1000; // 1 minute lockout
+const MAX_FAILED_ATTEMPTS = 30;
+const LOCKOUT_MS = 30 * 1000; // 30 seconds lockout
 
 export function checkRateLimit(req) {
   const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown-client';
