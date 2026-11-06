@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { useState, useRef, useEffect } from 'preact/hooks';
+import { FORMAT_RULES } from '../lib/parser.js';
 import { playPop, playScratch, playChime } from '../lib/sound.js';
 import {
   SparklesIcon,
@@ -35,6 +36,22 @@ export function AgentDrawer({
   const [proposedDiff, setProposedDiff] = useState(null);
   const [autoApply, setAutoApply] = useState(true);
   const [lastApplied, setLastApplied] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyRules = async () => {
+    try {
+      await navigator.clipboard.writeText(FORMAT_RULES);
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = FORMAT_RULES;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e2) {}
+      ta.remove();
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -332,7 +349,7 @@ export function AgentDrawer({
     playChime();
     setProposedDiff(null);
     setLastApplied(true);
-    setTimeout(() => setLastApplied(false), 5000);
+
   };
 
   if (!isOpen) return null;
@@ -364,6 +381,15 @@ export function AgentDrawer({
               Auto-apply changes
             </label>
           )}
+
+          <button
+            class="action-pill-btn"
+            onClick={handleCopyRules}
+            title="Copy formatting rules to paste into any AI so it formats your list correctly"
+            style={{ fontSize: '0.8rem', padding: '4px 10px' }}
+          >
+            {copied ? 'Copied!' : 'Copy formatting rules'}
+          </button>
 
           {lastApplied && (
             <button

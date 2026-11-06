@@ -305,3 +305,26 @@ function escapePrefix(str) {
   }
   return str;
 }
+
+/**
+ * Plain-text formatting rules, meant to be pasted to any AI so it formats a list
+ * in a way Boogiewoogie can import directly.
+ */
+export const FORMAT_RULES = `Format my todo list as plain text using EXACTLY these rules (no markdown, no code fences, no extra commentary):
+
+1. First line: "TODO: <list title>"
+2. A category (section header) starts with "+ " followed by its name, on its own line.
+3. A task is a line starting with "- [ ] " (not done) or "- [x] " (done). A plain "- task" also counts as not done.
+4. Tasks belong to the most recent category above them. Tasks before any category are top-level.
+5. A note starts with "# " and belongs to the most recent category (or is top-level if before any category).
+6. One item per line. No numbering, no bullets other than "- ", no blank-line-separated paragraphs.
+
+Example:
+TODO: Weekend
+# Things to do before Monday
++ Errands
+- [ ] Buy milk
+- [x] Post letter
++ Home
+- [ ] Fix shelf
+`;

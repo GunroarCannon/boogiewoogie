@@ -196,6 +196,20 @@ export class ClientSync {
   }
 
   async flushQueue() {
+    if (this._flushPromise) {
+      this._flushAgain = true;
+      return this._flushPromise;
+    }
+    this._flushPromise = (async () => {
+      do {
+        this._flushAgain = false;
+        await this._flushOnce();
+      } while (this._flushAgain && this.queue.length > 0);
+    })().finally(() => { this._flushPromise = null; });
+    return this._flushPromise;
+  }
+
+  async _flushOnce() {
     if (this.queue.length === 0 || !this.key || this.role !== 'edit') {
       this.syncStatus = 'synced';
       this.notify();
